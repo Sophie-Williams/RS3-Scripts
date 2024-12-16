@@ -34,11 +34,11 @@ local MAX_ACTIONS_PER_SECOND = 5
 local lastActionTime = os.time() * 1000
 local actionCount = 0
 local function resetActionCount()
-    local currentTime = os.time() * 1000
-    if (currentTime > (lastActionTime + 1000)) then
-        actionCount = 0
-        lastActionTime = currentTime
-    end
+	local currentTime = os.time() * 1000
+	if (currentTime > (lastActionTime + 1000)) then
+		actionCount = 0
+		lastActionTime = currentTime
+	end
 end
 
 -- ⏳ Idle Detection
@@ -54,58 +54,58 @@ local triggerThreshold = math.random(100, 300)
 local lastBreakCheckTime = os.time()
 local lastBreakPrintTime = os.time()
 local function handleTakeBreak()
-    if ENABLE_BREAKS and os.time() - lastBreakCheckTime > 2 then
-        lastBreakCheckTime = os.time()
-        local triggerRoll = math.random(1, 10000)
-        if triggerRoll <= triggerThreshold then
-            log(string.format("Break check triggered! Roll: %.2f%% / Required: %.2f%%", triggerRoll / 100, triggerThreshold / 100))
-            local breakRoll = math.random(1, 10000)
-            if breakRoll <= breakChance then
-                log(string.format("Break activated! Rolled: %.2f%% (Needed: %.2f%%)", breakRoll / 100, breakChance / 100))
-                breakChance = 100
+	if ENABLE_BREAKS and os.time() - lastBreakCheckTime > 2 then
+		lastBreakCheckTime = os.time()
+		local triggerRoll = math.random(1, 10000)
+		if triggerRoll <= triggerThreshold then
+			log(string.format("Break check triggered! Roll: %.2f%% / Required: %.2f%%", triggerRoll / 100, triggerThreshold / 100))
+			local breakRoll = math.random(1, 10000)
+			if breakRoll <= breakChance then
+				log(string.format("Break activated! Rolled: %.2f%% (Needed: %.2f%%)", breakRoll / 100, breakChance / 100))
+				breakChance = 100
 				breakEndTime = os.time() + math.random(MIN_BREAK_SECONDS, MAX_BREAK_SECONDS)
 				log(string.format("Taking a break for %d mins.", math.floor(os.difftime(breakEndTime, os.time()) / 60)))
 				takingBreak = true
-            else
-                local increment = math.random(5, 20)
-                breakChance = math.min(10000, breakChance + increment)
-                log(string.format("No break. Chance increased to: %.2f%% (+%.2f%%)", breakChance / 100, increment / 100))
-            end
-        end
-    end
-    return false
+			else
+				local increment = math.random(5, 20)
+				breakChance = math.min(10000, breakChance + increment)
+				log(string.format("No break. Chance increased to: %.2f%% (+%.2f%%)", breakChance / 100, increment / 100))
+			end
+		end
+	end
+	return false
 end
 
 -- 🍫️ Ingredients List
 local INGREDIENTS = {
-    ["firewood"] = { object = 131821, item = 57932, text = "<col=FFFF00>Aoife</col>: <col=99FF99>Oh no, it's barely simmering anymore. Could you fetch some more firewood?</col>" },
-    ["chocolate"] = { object = 131823, item = 57933, text = "<col=FFFF00>Aoife</col>: <col=99FF99>Tastes a tad weak. I think we need another handful of chocolate chunks.</col>" },
-    ["sugar"] = { object = 131822, item = 57934, text = "<col=FFFF00>Aoife</col>: <col=99FF99>That's good but slightly too bitter. We need a sprinkle of sugar to sweeten it up.</col>" },
-    ["milk"] = { object = 131824, item = 57935, text = "<col=FFFF00>Aoife</col>: <col=99FF99>It's starting to thicken up. Let's add a splash of milk.</col>" },
-    ["spice"] = { object = 131825, item = 57936, text = "<col=FFFF00>Aoife</col>: <col=99FF99>Flavour's a little plain. I reckon we're ready to add another dash of spice.</col>" }
+	["firewood"] = { object = 131821, item = 57932, text = "<col=FFFF00>Aoife</col>: <col=99FF99>Oh no, it's barely simmering anymore. Could you fetch some more firewood?</col>" },
+	["chocolate"] = { object = 131823, item = 57933, text = "<col=FFFF00>Aoife</col>: <col=99FF99>Tastes a tad weak. I think we need another handful of chocolate chunks.</col>" },
+	["sugar"] = { object = 131822, item = 57934, text = "<col=FFFF00>Aoife</col>: <col=99FF99>That's good but slightly too bitter. We need a sprinkle of sugar to sweeten it up.</col>" },
+	["milk"] = { object = 131824, item = 57935, text = "<col=FFFF00>Aoife</col>: <col=99FF99>It's starting to thicken up. Let's add a splash of milk.</col>" },
+	["spice"] = { object = 131825, item = 57936, text = "<col=FFFF00>Aoife</col>: <col=99FF99>Flavour's a little plain. I reckon we're ready to add another dash of spice.</col>" }
 }
 
 -- 🔍 Ingredient Detection
 local function CheckForIngredients()
-    local count = 0
-    for _, v in pairs(API.GatherEvents_chat_check() or {}) do
-        count = count + 1
-        if count > 5 then break end
-        for name, data in pairs(INGREDIENTS) do
-            if string.find(v.text or "", data.text, 1, true) then
-                API.RandomSleep2(math.random(888, 1444), 345, 876)
-                log("Ingredient detected: " .. name)
+	local count = 0
+	for _, v in pairs(API.GatherEvents_chat_check() or {}) do
+		count = count + 1
+		if count > 5 then break end
+		for name, data in pairs(INGREDIENTS) do
+			if string.find(v.text or "", data.text, 1, true) then
+				API.RandomSleep2(math.random(888, 1444), 345, 876)
+				log("Ingredient detected: " .. name)
 				local clickCount = (math.random(1, 100) <= math.random(4, 8)) and 2 or ((math.random(1, 100) <= math.random(1, 5)) and 3 or 1)
-                log("Clicking " .. clickCount .. " time(s) on " .. name)
-                for i = 1, clickCount do
-                    resetActionCount()
-                    if actionCount < MAX_ACTIONS_PER_SECOND then
-                        API.DoAction_Object1(0x2d, API.OFF_ACT_GeneralObject_route0, { data.object }, 20)
-                        actionCount = actionCount + 1
-                        log("Click " .. i .. " on " .. name)
-                        API.RandomSleep2(math.random(84, 149), 12, 19)
-                    end
-                end
+				log("Clicking " .. clickCount .. " time(s) on " .. name)
+				for i = 1, clickCount do
+					resetActionCount()
+					if actionCount < MAX_ACTIONS_PER_SECOND then
+						API.DoAction_Object1(0x2d, API.OFF_ACT_GeneralObject_route0, { data.object }, 20)
+						actionCount = actionCount + 1
+						log("Click " .. i .. " on " .. name)
+						API.RandomSleep2(math.random(84, 149), 12, 19)
+					end
+				end
 				log("Waiting for pickup animation then idle...")
 				local idleStartTime_Ingredients = os.time() * 1000
 				local retryPerformed = false
@@ -135,10 +135,10 @@ local function CheckForIngredients()
 					end
 					API.RandomSleep2(10, 3, 5)
 				end
-            end
-        end
-    end
-    return false
+			end
+		end
+	end
+	return false
 end
 
 -- 🤖 Bot State
@@ -153,14 +153,14 @@ while API.Read_LoopyLoop() do
 		print("Inventory is full. Please ensure at least one empty slot before starting the script.")
 		break
 	end
-    API.DoRandomEvents()
-    local currentTime = os.time() * 1000
-    local playerAnim = API.ReadPlayerAnim() or 0
-    local timeSinceLastAnimationCheck = currentTime - lastAnimationCheckTime
-    if timeSinceLastAnimationCheck > 1000 then
-        log("Current playerAnim: " .. playerAnim)
-        lastAnimationCheckTime = currentTime
-    end
+	API.DoRandomEvents()
+	local currentTime = os.time() * 1000
+	local playerAnim = API.ReadPlayerAnim() or 0
+	local timeSinceLastAnimationCheck = currentTime - lastAnimationCheckTime
+	if timeSinceLastAnimationCheck > 1000 then
+		log("Current playerAnim: " .. playerAnim)
+		lastAnimationCheckTime = currentTime
+	end
 	if not takingBreak and not firstLoop then
 		handleTakeBreak()
 	else
@@ -210,14 +210,14 @@ while API.Read_LoopyLoop() do
 			idleStartTime = nil
 		end
 	end
-    if state == "idle" and not API.InvFull_() then
-        log("Switching to cooking state.")
-        state = "cooking"
-    end
-    ::continue::
+	if state == "idle" and not API.InvFull_() then
+		log("Switching to cooking state.")
+		state = "cooking"
+	end
+	::continue::
 	firstLoop = false
-    resetActionCount()
-    API.RandomSleep2(math.random(30, 60), 20, 50)
+	resetActionCount()
+	API.RandomSleep2(math.random(30, 60), 20, 50)
 end
 
 print("Script stopped.")
