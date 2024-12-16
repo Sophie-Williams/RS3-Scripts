@@ -1,6 +1,6 @@
 -- 🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾
 -- 🐾 🕹️ Script: Christmas - Hot Chocolate Pot (Cooking)
--- 🐾 📅 Version: 1.0 (2024-12-16)
+-- 🐾 📅 Version: 1.1 (2024-12-16)
 -- 🐾 🐈 GitHub: <https://github.com/Sophie-Williams>
 -- 🐾 📜 Released under The Unlicense: <https://unlicense.org>
 -- 🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾
@@ -106,7 +106,7 @@ local function CheckForIngredients()
 						API.RandomSleep2(math.random(84, 149), 12, 19)
 					end
 				end
-				log("Waiting for pickup animation then idle...")
+				log("Waiting for item pickup...")
 				local idleStartTime_Ingredients = os.time() * 1000
 				local retryPerformed = false
 				while true do
@@ -150,8 +150,17 @@ print("Running Script: Christmas - Hot Chocolate Pot (Cooking)")
 -- 🐈 *slaps tummy* it fit many loop, brother 🍩🍪🍘🥮🍥
 while API.Read_LoopyLoop() do
 	if API.InvFull_() then
-		print("Inventory is full. Please ensure at least one empty slot before starting the script.")
-		break
+		local hasIngredient = false
+		for _, data in pairs(INGREDIENTS) do
+			if API.InvItemFound2({ data.item }) then
+				hasIngredient = true
+				break
+			end
+		end
+		if not hasIngredient then
+			print("Inventory is full. Please ensure at least one empty slot before starting the script.")
+			break
+		end
 	end
 	API.DoRandomEvents()
 	local currentTime = os.time() * 1000
@@ -210,7 +219,7 @@ while API.Read_LoopyLoop() do
 			idleStartTime = nil
 		end
 	end
-	if state == "idle" and not API.InvFull_() then
+	if state == "idle" then
 		log("Switching to cooking state.")
 		state = "cooking"
 	end
