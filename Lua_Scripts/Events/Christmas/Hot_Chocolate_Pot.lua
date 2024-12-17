@@ -1,6 +1,6 @@
 -- 🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾
 -- 🐾 🕹️ Script: Christmas - Hot Chocolate Pot (Cooking)
--- 🐾 📅 Version: 1.1 (2024-12-16)
+-- 🐾 📅 Version: 1.2 (2024-12-17)
 -- 🐾 🐈 GitHub: <https://github.com/Sophie-Williams>
 -- 🐾 📜 Released under The Unlicense: <https://unlicense.org>
 -- 🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾
@@ -157,7 +157,7 @@ while API.Read_LoopyLoop() do
 				break
 			end
 		end
-		if not hasIngredient then
+		if not hasIngredient and API.InvFull_() then
 			print("Inventory is full. Please ensure at least one empty slot before starting the script.")
 			break
 		end
